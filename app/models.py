@@ -1,10 +1,23 @@
 from app import db
+from datetime import datetime
 
 class User(db.Model):
+    """Model for a user, who can create experiments as well as answer questions"""
     id = db.Column(db.Integer, primary_key=True)
-    nickname = db.Column(db.String(64), index=True, unique=True)
+    # Profile settings
     email = db.Column(db.String(120), index=True, unique=True)
-    posts = db.relationship('Post', backref='author', lazy='dynamic')
+    first_name = db.Column(db.String(64))
+    last_name = db.Column(db.String(128))
+    created_at = db.Column(db.DateTime)
+    # Relationships
+    experiments = db.relationship('Experiment', backref='author', lazy='dynamic')
+    # attempts = db.relationship('Attempt', backref='attempts', lazy='dynamic')
+
+    def __init__(self, email, first_name=None, last_name=None):
+        self.email = email
+        self.first_name = first_name
+        self.last_name = last_name
+        self.created_at = datetime.utcnow()
 
     @property
     def is_authenticated(self):
@@ -24,53 +37,82 @@ class User(db.Model):
         except NameError:
             return str(self.id)  # python 3
 
-    def __repr__(self):
-        return '<User %r>' % (self.nickname)
-
-class Post(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    body = db.Column(db.String(140))
-    timestamp = db.Column(db.DateTime)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    def add_experiment(self, experiment):
+        self.experiments.append(experiment)
 
     def __repr__(self):
-        return '<Post %r>' % (self.body)
+        return '<User %r>' % (self.email)
 
 
-class Plot(db.Model):
+class Experiment(db.Model):
+    """An experiment is a collection of:
+    - Figures to test
+    - Attributes to test for each figure
+    """
     id = db.Column(db.Integer, primary_key = True)
+    name = db.Column(db.String(255))
+    created_at = db.Column(db.DateTime)
+    author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    figures = db.relationship('Figure', backref='experiment', lazy = 'dynamic')
+
+    def __init__(self, name, user):
+        self.name = name
+        self.author = user
+
+
+class Figure(db.Model):
+    """A single figure (e.g. plot), as part of an experiment"""
+    id = db.Column(db.Integer, primary_key = True)
+    experiment_id = db.Column(db.Integer, db.ForeignKey('experiment.id'))
     # img
 
+#
+# class Attribute(db.Model):
+#     # Proportion
+#     # Value
+#     # Comparative Value (is A > B)
+#     # Trend (is A increasing or decreasing, or flat)
+#     # Novelty/Outlier (is A new? is A unusual?)
+#
+#     pass
+#
+#
+# class Question(db.Model):
+#     id = db.Column(db.Integer, primary_key = True)
+#     text = db.Column(db.String(512))
+#     # options = set of options
+#     # answer = correct answer
+#
+#
+# class Attempt(db.Model):
+#     id = db.Column(db.Integer, primary_key = True)
+#     # user id
+#     # time presented
+#     # time answered
+#     # question id
+#     # chosen option
+#     # correct?
+#
+#
+# class Post(db.Model):
+#     id = db.Column(db.Integer, primary_key = True)
+#     body = db.Column(db.String(140))
+#     timestamp = db.Column(db.DateTime)
+#     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+#
+#     def __repr__(self):
+#         return '<Post %r>' % (self.body)
 
-class Question(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    text = db.Column(db.String(512))
-    # options = set of options
-    # answer = correct answer
 
 
 
-class Attempt(db.Model):
-    id = db.Column(db.Integer, primary_key = True)
-    # user id
-    # time presented
-    # time answered
-    # question id
-    # chosen option
-    # correct?
 
 
-class Test(db.Model)
-    """set of plots and questions? attempts?"""
-    # attributes to test
-    pass
 
 
-class Attribute(db.Model)
-    # Proportion
-    # Value
-    # Comparative Value (is A > B)
-    # Trend (is A increasing or decreasing, or flat)
-    # Novelty/Outlier (is A new? is A unusual?)
 
-    pass
+
+# class Test(db.Model)
+#     """set of plots and questions? attempts?"""
+#     # attributes to test
+#     pass

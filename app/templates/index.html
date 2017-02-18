@@ -1,8 +1,8 @@
-<html>
-  <head>
-    <title>{{ title }} - microblog</title>
-  </head>
-  <body>
+{%- extends "base.html" %}
+
+{% block title %}This is an example page{% endblock %}
+
+{% block content %}
     {% with messages = get_flashed_messages() %}
   {% if messages %}
     <ul class=flashes>
@@ -19,5 +19,4 @@
       <h1>Welcome!</h1>
       <a href="{{ url_for('login') }}">Log In</a>
       {% endif %}
-  </body>
-</html>
+  {% endblock %}
