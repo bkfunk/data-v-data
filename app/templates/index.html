@@ -1,0 +1,23 @@
+<html>
+  <head>
+    <title>{{ title }} - microblog</title>
+  </head>
+  <body>
+    {% with messages = get_flashed_messages() %}
+  {% if messages %}
+    <ul class=flashes>
+    {% for message in messages %}
+      <li>{{ message }}</li>
+    {% endfor %}
+    </ul>
+  {% endif %}
+{% endwith %}
+      {% if current_user.is_authenticated %}
+      <h1>Hello, {{ current_user.nickname }}!</h1>
+      <a href="{{ url_for('logout') }}">Log Out</a>
+      {% else %}
+      <h1>Welcome!</h1>
+      <a href="{{ url_for('login') }}">Log In</a>
+      {% endif %}
+  </body>
+</html>
