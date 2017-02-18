@@ -92,3 +92,4 @@ ENV/
 config.py
 
 *.db
+.DS_Store
