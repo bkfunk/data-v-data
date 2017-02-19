@@ -1,7 +1,8 @@
-from app import db
+from app import db, login_manager
+from flask_login import UserMixin
 from datetime import datetime
 
-class User(db.Model):
+class User(UserMixin, db.Model):
     """Model for a user, who can create experiments as well as answer questions"""
     id = db.Column(db.Integer, primary_key=True)
     # Profile settings
@@ -19,23 +20,26 @@ class User(db.Model):
         self.last_name = last_name
         self.created_at = datetime.utcnow()
 
-    @property
-    def is_authenticated(self):
-        return True
-
-    @property
-    def is_active(self):
-        return True
-
-    @property
-    def is_anonymous(self):
-        return False
-
-    def get_id(self):
-        try:
-            return unicode(self.id)  # python 2
-        except NameError:
-            return str(self.id)  # python 3
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+    # @property
+    # def is_authenticated(self):
+    #     return True
+    #
+    # @property
+    # def is_active(self):
+    #     return True
+    #
+    # @property
+    # def is_anonymous(self):
+    #     return False
+    #
+    # def get_id(self):
+    #     try:
+    #         return unicode(self.id)  # python 2
+    #     except NameError:
+    #         return str(self.id)  # python 3
 
     def add_experiment(self, experiment):
         self.experiments.append(experiment)
